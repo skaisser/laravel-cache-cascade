@@ -20,6 +20,15 @@ class CacheCascadeManager
      */
     protected array $config;
 
+    /**
+     * Track hits for statistics
+     */
+    protected array $stats = [
+        'hits' => ['cache' => 0, 'file' => 0, 'database' => 0],
+        'misses' => 0,
+        'writes' => 0,
+    ];
+
     public function __construct(Application $app)
     {
         $this->app = $app;
@@ -45,6 +54,10 @@ class CacheCascadeManager
         // Try to get from cache first
         if (Cache::has($cacheKey)) {
             $cached = Cache::get($cacheKey);
+            $this->stats['hits']['cache']++;
+            if ($this->config['logging']['log_hits'] ?? true) {
+                $this->log('debug', "Cache hit for key: {$key}", ['layer' => 'cache', 'key' => $key]);
+            }
             return $transform ? $transform($cached) : $cached;
         }
 
@@ -56,6 +69,10 @@ class CacheCascadeManager
             $config = require $configFile;
             $data = $config['data'] ?? [];
             Cache::put($cacheKey, $data, $ttl);
+            $this->stats['hits']['file']++;
+            if ($this->config['logging']['log_hits'] ?? true) {
+                $this->log('debug', "File hit for key: {$key}", ['layer' => 'file', 'key' => $key]);
+            }
             return $transform ? $transform($data) : $data;
         }
 
@@ -66,10 +83,18 @@ class CacheCascadeManager
                 Cache::put($cacheKey, $data, $ttl);
                 // Also save to file for persistence
                 $this->set($key, $data, true);
+                $this->stats['hits']['database']++;
+                if ($this->config['logging']['log_hits'] ?? true) {
+                    $this->log('debug', "Database hit for key: {$key}", ['layer' => 'database', 'key' => $key]);
+                }
                 return $transform ? $transform($data) : $data;
             }
         }
 
+        $this->stats['misses']++;
+        if ($this->config['logging']['log_misses'] ?? true) {
+            $this->log('info', "Cache miss for key: {$key}", ['key' => $key, 'default_used' => true]);
+        }
         return $transform ? $transform($default) : $default;
     }
 
@@ -84,6 +109,8 @@ class CacheCascadeManager
     public function set(string $key, mixed $data, bool $skipDatabase = false): void
     {
         try {
+            $this->stats['writes']++;
+            
             // Ensure directory exists
             $configPath = base_path($this->config['config_path'] ?? 'config/dynamic');
             if (!File::exists($configPath)) {
@@ -103,11 +130,18 @@ class CacheCascadeManager
 
             // Skip database operations if requested
             if ($skipDatabase || !($this->config['use_database'] ?? true)) {
+                if ($this->config['logging']['log_writes'] ?? true) {
+                    $this->log('debug', "Data written for key: {$key}", ['key' => $key, 'layers' => ['cache', 'file']]);
+                }
                 return;
             }
 
             // Update database if model exists
             $this->saveToDatabase($key, $data);
+            
+            if ($this->config['logging']['log_writes'] ?? true) {
+                $this->log('debug', "Data written for key: {$key}", ['key' => $key, 'layers' => ['cache', 'file', 'database']]);
+            }
         } catch (\Exception $e) {
             Log::error("CacheCascade: Error setting {$key}: " . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
@@ -376,5 +410,32 @@ class CacheCascadeManager
         }
 
         return [];
+    }
+    
+    /**
+     * Log cache operation if logging is enabled
+     */
+    protected function log(string $level, string $message, array $context = []): void
+    {
+        if (!($this->config['logging']['enabled'] ?? false)) {
+            return;
+        }
+        
+        $channel = $this->config['logging']['channel'] ?? 'stack';
+        $logLevel = $this->config['logging']['level'] ?? 'debug';
+        
+        // Only log if the message level is appropriate
+        $levels = ['debug' => 0, 'info' => 1, 'notice' => 2, 'warning' => 3, 'error' => 4];
+        if (($levels[$level] ?? 0) >= ($levels[$logLevel] ?? 0)) {
+            Log::channel($channel)->$level("CacheCascade: {$message}", $context);
+        }
+    }
+    
+    /**
+     * Get runtime statistics
+     */
+    public function getStats(): array
+    {
+        return $this->stats;
     }
 }

@@ -84,4 +84,21 @@ return [
     |
     */
     'clear_on_cache_clear' => true, // Clear cascade cache when running php artisan cache:clear
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logging & Debugging
+    |--------------------------------------------------------------------------
+    |
+    | Configure logging for cache operations to help with debugging.
+    |
+    */
+    'logging' => [
+        'enabled' => env('CACHE_CASCADE_LOG', false),
+        'channel' => env('CACHE_CASCADE_LOG_CHANNEL', 'stack'),
+        'level' => env('CACHE_CASCADE_LOG_LEVEL', 'debug'),
+        'log_hits' => true,  // Log which layer served the data
+        'log_misses' => true, // Log cache misses
+        'log_writes' => true, // Log write operations
+    ],
 ];

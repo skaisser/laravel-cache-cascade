@@ -345,6 +345,44 @@ $staticFiles = ConfigCacheHelper::getStaticConfigFiles();
 $cascadeKeys = ConfigCacheHelper::getFileStorageKeys();
 ```
 
+### Logging & Debugging
+
+Enable detailed logging to debug cache behavior:
+
+```php
+// .env
+CACHE_CASCADE_LOG=true
+CACHE_CASCADE_LOG_CHANNEL=daily
+CACHE_CASCADE_LOG_LEVEL=debug
+```
+
+Or configure in the config file:
+
+```php
+// config/cache-cascade.php
+'logging' => [
+    'enabled' => true,
+    'channel' => 'daily',
+    'level' => 'debug',
+    'log_hits' => true,   // Log cache/file/database hits
+    'log_misses' => true, // Log cache misses
+    'log_writes' => true, // Log write operations
+],
+```
+
+View runtime statistics:
+
+```bash
+php artisan cache:cascade:stats
+```
+
+Example log output:
+```
+[2024-06-24 10:15:32] local.DEBUG: CacheCascade: Cache hit for key: settings {"layer":"cache","key":"settings"}
+[2024-06-24 10:15:45] local.DEBUG: CacheCascade: File hit for key: faqs {"layer":"file","key":"faqs"}
+[2024-06-24 10:16:03] local.INFO: CacheCascade: Cache miss for key: new_feature {"key":"new_feature","default_used":true}
+```
+
 ## Real-World Use Cases
 
 ### 🏢 SaaS Applications

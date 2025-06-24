@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
+use Skaisser\CacheCascade\Facades\CacheCascade;
 
 class StatsCommand extends Command
 {
@@ -69,13 +70,30 @@ class StatsCommand extends Command
         
         $config = config('cache-cascade');
         
+        // Runtime statistics
+        $stats = app('cache-cascade')->getStats();
+        $this->line('<comment>Runtime Statistics:</comment>');
+        $this->line('  Cache Hits: ' . $stats['hits']['cache']);
+        $this->line('  File Hits: ' . $stats['hits']['file']);
+        $this->line('  Database Hits: ' . $stats['hits']['database']);
+        $this->line('  Total Misses: ' . $stats['misses']);
+        $this->line('  Write Operations: ' . $stats['writes']);
+        
+        $totalHits = array_sum($stats['hits']);
+        if ($totalHits > 0) {
+            $cacheHitRate = round(($stats['hits']['cache'] / $totalHits) * 100, 2);
+            $this->line('  Cache Hit Rate: ' . $cacheHitRate . '%');
+        }
+        
         // Configuration info
+        $this->line('');
         $this->line('<comment>Configuration:</comment>');
         $this->line('  Cache Driver: ' . config('cache.default'));
         $this->line('  Default TTL: ' . ($config['default_ttl'] ?? 86400) . ' seconds');
         $this->line('  Config Path: ' . ($config['config_path'] ?? 'config/dynamic'));
         $this->line('  Visitor Isolation: ' . ($config['visitor_isolation'] ? 'Enabled' : 'Disabled'));
         $this->line('  Auto-seeding: ' . ($config['auto_seed'] ? 'Enabled' : 'Disabled'));
+        $this->line('  Logging: ' . (($config['logging']['enabled'] ?? false) ? 'Enabled' : 'Disabled'));
         
         // File storage stats
         $this->line('');

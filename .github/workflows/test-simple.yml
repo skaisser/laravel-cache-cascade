@@ -1,0 +1,50 @@
+name: Simple Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, fileinfo
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Create test directories
+        run: |
+          mkdir -p tests/fixtures/dynamic
+          mkdir -p build/logs
+          mkdir -p config/dynamic
+
+      - name: List directory structure
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Directory contents:"
+          ls -la
+          echo "Tests directory:"
+          ls -la tests/
+
+      - name: Execute tests without coverage
+        run: vendor/bin/phpunit --no-coverage --testdox
+
+      - name: Show test output on failure
+        if: failure()
+        run: |
+          echo "Test failed. Checking logs..."
+          if [ -f storage/logs/laravel.log ]; then
+            tail -n 100 storage/logs/laravel.log
+          fi

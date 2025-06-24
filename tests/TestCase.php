@@ -68,9 +68,15 @@ abstract class TestCase extends Orchestra
 
     protected function clearTestFiles()
     {
-        $path = base_path('tests/fixtures/dynamic');
+        $path = $this->app->basePath('tests/fixtures/dynamic');
         if (File::exists($path)) {
             File::deleteDirectory($path);
+        }
+        
+        // Also clear config/dynamic if it exists
+        $configPath = $this->app->basePath('config/dynamic');
+        if (File::exists($configPath)) {
+            File::deleteDirectory($configPath);
         }
     }
 }

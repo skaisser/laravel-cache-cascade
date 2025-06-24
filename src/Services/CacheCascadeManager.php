@@ -189,11 +189,22 @@ class CacheCascadeManager
     public function clearAllCache(): void
     {
         if ($this->config['use_tags'] ?? false) {
-            Cache::tags($this->config['cache_tag'] ?? 'config-cache')->flush();
+            if (Cache::supportsTags()) {
+                Cache::tags($this->config['cache_tag'] ?? 'config-cache')->flush();
+            }
         } else {
-            // If not using tags, you'll need to implement your own logic
-            // to track and clear all config cache keys
-            Log::warning('CacheCascade: clearAllCache called without tag support enabled');
+            // Clear cache by prefix - this is a simplified approach
+            // In production you might want to track all keys
+            Cache::flush();
+        }
+        
+        // Clear all files in the config path
+        $path = base_path($this->config['config_path'] ?? 'config/dynamic');
+        if (File::exists($path)) {
+            $files = File::files($path);
+            foreach ($files as $file) {
+                File::delete($file);
+            }
         }
     }
 

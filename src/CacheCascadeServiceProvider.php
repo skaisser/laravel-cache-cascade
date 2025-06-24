@@ -4,6 +4,9 @@ namespace Skaisser\CacheCascade;
 
 use Illuminate\Support\ServiceProvider;
 use Skaisser\CacheCascade\Services\CacheCascadeManager;
+use Skaisser\CacheCascade\Console\Commands\RefreshCommand;
+use Skaisser\CacheCascade\Console\Commands\ClearCommand;
+use Skaisser\CacheCascade\Console\Commands\StatsCommand;
 
 class CacheCascadeServiceProvider extends ServiceProvider
 {
@@ -29,6 +32,13 @@ class CacheCascadeServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/cache-cascade.php' => config_path('cache-cascade.php'),
             ], 'cache-cascade-config');
+            
+            // Register Artisan commands
+            $this->commands([
+                RefreshCommand::class,
+                ClearCommand::class,
+                StatsCommand::class,
+            ]);
         }
     }
 }

@@ -1,5 +1,10 @@
 # Laravel Cache Cascade
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/skaisser/laravel-cache-cascade.svg?style=flat-square)](https://packagist.org/packages/skaisser/laravel-cache-cascade)
+[![Tests](https://github.com/skaisser/laravel-cache-cascade/actions/workflows/tests.yml/badge.svg)](https://github.com/skaisser/laravel-cache-cascade/actions/workflows/tests.yml)
+[![Code Coverage](https://codecov.io/gh/skaisser/laravel-cache-cascade/branch/main/graph/badge.svg)](https://codecov.io/gh/skaisser/laravel-cache-cascade)
+[![Total Downloads](https://img.shields.io/packagist/dt/skaisser/laravel-cache-cascade.svg?style=flat-square)](https://packagist.org/packages/skaisser/laravel-cache-cascade)
+
 A sophisticated multi-layer caching solution for Laravel with automatic fallback mechanisms, visitor isolation, and database seeding support. This package provides a robust caching system that falls back through multiple storage layers to ensure data availability.
 
 ## Features
@@ -280,9 +285,23 @@ CacheCascade::clearAllCache();
 
 ## Testing
 
+Run the test suite:
+
 ```bash
 composer test
 ```
+
+Run tests with code coverage:
+
+```bash
+composer test -- --coverage-html coverage
+```
+
+The package has comprehensive test coverage including:
+- Unit tests for all manager methods
+- Trait functionality tests
+- Integration tests for complete flows
+- Error handling and edge cases
 
 ## Security
 

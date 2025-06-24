@@ -13,3 +13,4 @@ Thumbs.db
 .phpunit.cache
 coverage/
 build/
+/tests/fixtures/

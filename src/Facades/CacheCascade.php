@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static void clearCache(string $key)
  * @method static void clearAllCache()
  * @method static mixed remember(string $key, \Closure $callback, ?int $ttl = null, bool $useVisitorIsolation = false)
+ * @method static mixed refresh(string $key)
+ * @method static void invalidate(string $key)
  * 
  * @see \Skaisser\CacheCascade\Services\CacheCascadeManager
  */

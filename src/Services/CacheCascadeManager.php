@@ -117,6 +117,56 @@ class CacheCascadeManager
     }
 
     /**
+     * Refresh data from database and update all cache layers
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public function refresh(string $key): mixed
+    {
+        // First, clear all cache layers
+        $this->invalidate($key);
+        
+        // Load fresh data from database
+        $data = $this->loadFromDatabase($key);
+        
+        if ($data !== null) {
+            // Update file storage
+            $configPath = base_path($this->config['config_path'] ?? 'config/dynamic');
+            if (!File::exists($configPath)) {
+                File::makeDirectory($configPath, 0755, true);
+            }
+            
+            $configFile = $configPath . '/' . $key . '.php';
+            File::put($configFile, '<?php return ' . var_export(['data' => $data], true) . ';');
+            
+            // Update cache
+            $cacheKey = $this->getCacheKey($key, false);
+            Cache::put($cacheKey, $data, $this->config['default_ttl'] ?? 86400);
+        }
+        
+        return $data;
+    }
+
+    /**
+     * Invalidate all cache layers for a key
+     *
+     * @param string $key
+     * @return void
+     */
+    public function invalidate(string $key): void
+    {
+        // Clear cache
+        $this->clearCache($key);
+        
+        // Remove file if it exists
+        $configFile = base_path($this->config['config_path'] ?? 'config/dynamic') . '/' . $key . '.php';
+        if (File::exists($configFile)) {
+            File::delete($configFile);
+        }
+    }
+
+    /**
      * Clear the cache for a specific key
      *
      * @param string $key

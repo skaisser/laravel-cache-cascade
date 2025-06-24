@@ -11,6 +11,8 @@ A sophisticated multi-layer caching solution for Laravel with automatic fallback
 - **🔄 Flexible Configuration**: Customize fallback order and behavior
 - **🏷️ Cache Tagging**: Support for tagged cache operations
 - **⚡ High Performance**: Request-level caching to minimize database queries
+- **♻️ Automatic Invalidation**: Database changes automatically refresh cache and file layers
+- **🎯 Model Integration**: Trait for automatic cache management in Eloquent models
 
 ## Installation
 
@@ -148,6 +150,81 @@ The package intelligently detects models based on the cache key:
 - `'faqs'` → `App\Models\Faq`
 - `'settings'` → `App\Models\Setting`
 - `'categories'` → `App\Models\Category`
+
+## Cache Invalidation
+
+One of the most important features is automatic cache invalidation when database data changes. The package provides multiple ways to handle this:
+
+### Manual Invalidation
+
+```php
+use Skaisser\CacheCascade\Facades\CacheCascade;
+
+// Invalidate all cache layers (cache + file)
+CacheCascade::invalidate('settings');
+
+// Refresh from database and update all layers
+$freshData = CacheCascade::refresh('settings');
+```
+
+### Automatic Model Invalidation
+
+Use the `CascadeInvalidation` trait in your Eloquent models for automatic cache invalidation:
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Skaisser\CacheCascade\Traits\CascadeInvalidation;
+
+class Faq extends Model
+{
+    use CascadeInvalidation;
+    
+    protected $fillable = ['question', 'answer', 'order'];
+    
+    // Optional: Customize the cache key (defaults to table name)
+    public function getCascadeCacheKey(): ?string
+    {
+        return 'faqs'; // This will be the cache key
+    }
+    
+    // Optional: Customize what data gets cached
+    public function scopeForCascadeCache($query)
+    {
+        return $query->where('active', true)->orderBy('order');
+    }
+}
+```
+
+Now when you update the model, the cache is automatically refreshed:
+
+```php
+// This will automatically invalidate cache and file, then refresh from database
+$faq = Faq::find(1);
+$faq->update(['answer' => 'Updated answer']);
+
+// Cache has been automatically refreshed!
+$cachedFaqs = CacheCascade::get('faqs'); // Fresh data from database
+```
+
+### Invalidation Events
+
+The trait automatically invalidates cache on:
+- Model creation (`created`)
+- Model updates (`updated`)
+- Model deletion (`deleted`)
+- Model restoration (`restored` - for soft deletes)
+
+### Manual Model Refresh
+
+```php
+// Manually refresh cache for a model
+$faq = Faq::first();
+$faq->refreshCascadeCache();
+```
 
 ## Advanced Usage
 

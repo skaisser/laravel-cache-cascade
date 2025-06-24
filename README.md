@@ -1,12 +1,8 @@
 # Laravel Cache Cascade
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/skaisser/laravel-cache-cascade.svg?style=flat-square)](https://packagist.org/packages/skaisser/laravel-cache-cascade)
 [![Tests](https://github.com/skaisser/laravel-cache-cascade/actions/workflows/tests.yml/badge.svg)](https://github.com/skaisser/laravel-cache-cascade/actions/workflows/tests.yml)
 [![Code Coverage](https://img.shields.io/badge/coverage-90.13%25-brightgreen.svg)](https://github.com/skaisser/laravel-cache-cascade)
-[![Total Downloads](https://img.shields.io/packagist/dt/skaisser/laravel-cache-cascade.svg?style=flat-square)](https://packagist.org/packages/skaisser/laravel-cache-cascade)
-[![PHP Version](https://img.shields.io/packagist/php-v/skaisser/laravel-cache-cascade.svg?style=flat-square)](https://packagist.org/packages/skaisser/laravel-cache-cascade)
 [![Laravel](https://img.shields.io/badge/Laravel-10.x%20|%2011.x%20|%2012.x-FF2D20?style=flat-square&logo=laravel)](https://laravel.com)
-[![GitHub Stars](https://img.shields.io/github/stars/skaisser/laravel-cache-cascade.svg?style=social)](https://github.com/skaisser/laravel-cache-cascade)
 
 **Never lose your cached data again.** Laravel Cache Cascade provides bulletproof caching with automatic fallback through multiple storage layers. When Redis goes down, your app keeps running. When files get corrupted, data loads from the database. When the database is empty, seeders run automatically.
 

@@ -359,6 +359,43 @@ $shippingRates = CacheCascade::get('shipping:rates');
 
 ## Testing
 
+### Testing Your Code with CacheCascade::fake()
+
+The package provides a powerful fake implementation for easy testing:
+
+```php
+use Skaisser\CacheCascade\Facades\CacheCascade;
+
+public function test_my_service()
+{
+    // Replace with fake for testing
+    $fake = CacheCascade::fake();
+    
+    // Your code that uses CacheCascade
+    $service = new MyService();
+    $service->cacheSettings();
+    
+    // Assert cache interactions
+    $fake->assertCalled('set', ['settings', $data, false]);
+    $fake->assertHas('settings');
+    
+    // Verify call counts
+    $this->assertEquals(1, $fake->calledCount('set'));
+}
+```
+
+Available test assertions:
+- `assertCalled($method, $arguments)` - Verify method was called
+- `assertNotCalled($method)` - Verify method wasn't called
+- `assertHas($key)` - Check if cache has key
+- `assertMissing($key)` - Check if cache doesn't have key
+- `calledCount($method)` - Get number of calls
+- `reset()` - Clear fake data between tests
+
+See [Testing Documentation](docs/TESTING.md) for comprehensive examples.
+
+### Running Package Tests
+
 Run the test suite:
 
 ```bash

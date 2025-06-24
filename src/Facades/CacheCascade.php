@@ -3,6 +3,7 @@
 namespace Skaisser\CacheCascade\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Skaisser\CacheCascade\Testing\CacheCascadeFake;
 
 /**
  * @method static mixed get(string $key, mixed $default = null, array $options = [])
@@ -17,6 +18,19 @@ use Illuminate\Support\Facades\Facade;
  */
 class CacheCascade extends Facade
 {
+    /**
+     * Replace the bound instance with a fake.
+     *
+     * @return \Skaisser\CacheCascade\Testing\CacheCascadeFake
+     */
+    public static function fake()
+    {
+        $fake = new CacheCascadeFake();
+        static::swap($fake);
+        
+        return $fake;
+    }
+    
     /**
      * Get the registered name of the component.
      *

@@ -301,6 +301,50 @@ Configure custom model namespace in config:
 CacheCascade::clearAllCache();
 ```
 
+## Laravel Integration
+
+### Artisan Commands
+
+The package provides several Artisan commands:
+
+```bash
+# Refresh cache from database
+php artisan cache:cascade:refresh {key}
+
+# Clear specific or all cascade cache
+php artisan cache:cascade:clear {key}
+php artisan cache:cascade:clear --all
+
+# Show cache statistics
+php artisan cache:cascade:stats
+php artisan cache:cascade:stats {key}
+```
+
+### Integration with Laravel Commands
+
+#### cache:clear
+
+By default, running `php artisan cache:clear` will also clear all cascade cache. You can disable this:
+
+```php
+// config/cache-cascade.php
+'clear_on_cache_clear' => false,
+```
+
+#### config:cache
+
+Dynamic cascade files are excluded from `config:cache` by default. If you need to check which files would be cached:
+
+```php
+use Skaisser\CacheCascade\Helpers\ConfigCacheHelper;
+
+// Get all static config files (excluding cascade files)
+$staticFiles = ConfigCacheHelper::getStaticConfigFiles();
+
+// Get all cascade cache keys from file storage
+$cascadeKeys = ConfigCacheHelper::getFileStorageKeys();
+```
+
 ## Real-World Use Cases
 
 ### 🏢 SaaS Applications

@@ -40,5 +40,12 @@ class CacheCascadeServiceProvider extends ServiceProvider
                 StatsCommand::class,
             ]);
         }
+        
+        // Integrate with Laravel's cache:clear command
+        $this->app['events']->listen('cache:clearing', function() {
+            if (config('cache-cascade.clear_on_cache_clear', true)) {
+                $this->app['cache-cascade']->clearAllCache();
+            }
+        });
     }
 }

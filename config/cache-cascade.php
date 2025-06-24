@@ -74,4 +74,14 @@ return [
         'enabled' => true,
         'format' => 'php', // Options: 'php', 'json'
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Laravel Integration
+    |--------------------------------------------------------------------------
+    |
+    | Configure how the package integrates with Laravel's built-in commands.
+    |
+    */
+    'clear_on_cache_clear' => true, // Clear cascade cache when running php artisan cache:clear
 ];

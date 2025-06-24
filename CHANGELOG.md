@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `forget()` method as an alias for `clearCache()` to match Laravel's Cache facade
+- `rememberFor()` method with Laravel-compatible parameter order: `rememberFor(string $key, int $ttl, Closure $callback)`
+- Global helper function `cache_cascade()` for convenient access
+- Comprehensive usage examples in README
+- Enhanced Facade docblock with complete method annotations
+
+### Improved
+- Better Laravel compatibility with familiar method names
+- Enhanced developer experience with clearer documentation
+- Improved IDE support through detailed docblocks
+
 ## [1.1.0] - 2024-06-24
 
 ### Added

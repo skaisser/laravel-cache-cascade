@@ -9,10 +9,13 @@ use Skaisser\CacheCascade\Testing\CacheCascadeFake;
  * @method static mixed get(string $key, mixed $default = null, array $options = [])
  * @method static void set(string $key, mixed $data, bool $skipDatabase = false)
  * @method static void clearCache(string $key)
+ * @method static void forget(string $key)
  * @method static void clearAllCache()
  * @method static mixed remember(string $key, \Closure $callback, ?int $ttl = null, bool $useVisitorIsolation = false)
+ * @method static mixed rememberFor(string $key, int $ttl, \Closure $callback)
  * @method static mixed refresh(string $key)
  * @method static void invalidate(string $key)
+ * @method static array getStats()
  * 
  * @see \Skaisser\CacheCascade\Services\CacheCascadeManager
  */

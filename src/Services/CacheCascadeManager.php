@@ -216,6 +216,17 @@ class CacheCascadeManager
     }
 
     /**
+     * Alias for clearCache() to match Laravel's Cache facade
+     *
+     * @param string $key
+     * @return void
+     */
+    public function forget(string $key): void
+    {
+        $this->clearCache($key);
+    }
+
+    /**
      * Clear all config caches
      *
      * @return void
@@ -257,6 +268,19 @@ class CacheCascadeManager
         $ttl = $ttl ?? $this->config['default_ttl'] ?? 86400;
 
         return Cache::remember($cacheKey, $ttl, $callback);
+    }
+
+    /**
+     * Remember a value in cache with Laravel-compatible signature
+     *
+     * @param string $key
+     * @param int $ttl
+     * @param \Closure $callback
+     * @return mixed
+     */
+    public function rememberFor(string $key, int $ttl, \Closure $callback): mixed
+    {
+        return $this->remember($key, $callback, $ttl, false);
     }
 
     /**

@@ -103,17 +103,34 @@ $faqs = CacheCascade::get('faqs', [], [
 // Set data (updates all layers)
 CacheCascade::set('settings', $data);
 
-// Clear specific cache
+// Clear specific cache (both methods work)
 CacheCascade::clearCache('settings');
+CacheCascade::forget('settings'); // Laravel-style alias
+
+// Using the global helper
+$settings = cache_cascade('settings', []); // Get with default
+$value = cache_cascade('key', function() {  // Remember pattern
+    return expensive_operation();
+});
 ```
 
 ### Remember Pattern
 
 ```php
-// Cache data with a callback
+// Cache data with a callback (original method)
 $users = CacheCascade::remember('active-users', function() {
     return User::where('active', true)->get();
 }, 3600); // Cache for 1 hour
+
+// Laravel-compatible signature with rememberFor()
+$posts = CacheCascade::rememberFor('recent-posts', 3600, function() {
+    return Post::recent()->limit(10)->get();
+});
+
+// Using the helper function
+$data = cache_cascade('expensive-data', function() {
+    return expensive_computation();
+});
 ```
 
 ### Visitor Isolation
@@ -285,6 +302,107 @@ CacheCascade::set('config', $data, true); // Skip database
 
 // Clear all cascade caches
 CacheCascade::clearAllCache();
+```
+
+## Comprehensive Examples
+
+### Real-World Usage Patterns
+
+**E-commerce Settings**
+```php
+use Skaisser\CacheCascade\Facades\CacheCascade;
+
+// Get store configuration with fallback
+$storeConfig = CacheCascade::get('store-config', [
+    'currency' => 'USD',
+    'tax_rate' => 0.08
+]);
+
+// Remember computed values with Laravel-compatible syntax
+$shippingRates = CacheCascade::rememberFor('shipping-rates', 3600, function() {
+    return ShippingProvider::calculateRates();
+});
+
+// Clear cache when admin updates settings
+CacheCascade::forget('store-config');
+CacheCascade::forget('shipping-rates');
+```
+
+**Multi-tenant SaaS Application**
+```php
+// Enable visitor isolation for tenant-specific data
+$tenantSettings = CacheCascade::remember('tenant-settings', function() {
+    return Tenant::current()->settings;
+}, 86400, true); // true enables visitor isolation
+
+// Or use the global helper
+$features = cache_cascade('tenant-features', function() {
+    return Feature::forTenant(tenant())->get();
+});
+```
+
+**CMS Content Management**
+```php
+// Model with automatic cache invalidation
+class Page extends Model
+{
+    use CascadeInvalidation;
+    
+    public function getCascadeCacheKey(): ?string
+    {
+        return 'pages';
+    }
+}
+
+// Usage in controllers
+$pages = CacheCascade::rememberFor('pages', 7200, function() {
+    return Page::published()->with('author')->get();
+});
+
+// When a page is updated, cache automatically refreshes!
+$page->update(['title' => 'New Title']); // Triggers cache invalidation
+```
+
+**API Response Caching**
+```php
+// Cache API responses with transformation
+$apiData = CacheCascade::get('weather-data', [], [
+    'ttl' => 1800, // 30 minutes
+    'transform' => function($data) {
+        return collect($data)->map(function($item) {
+            return [
+                'temp' => $item['temperature'],
+                'desc' => $item['description'],
+                'icon' => "weather-{$item['code']}.svg"
+            ];
+        });
+    }
+]);
+
+// Refresh from external API
+Route::post('/admin/refresh-weather', function() {
+    $freshData = WeatherAPI::fetch();
+    CacheCascade::set('weather-data', $freshData);
+    CacheCascade::invalidate('weather-widget'); // Clear dependent caches
+});
+```
+
+**Feature Flags & Configuration**
+```php
+// Define feature flags that must always load
+$features = CacheCascade::remember('feature-flags', function() {
+    return FeatureFlag::all()->pluck('enabled', 'name');
+}, 86400);
+
+if ($features['new-checkout-flow'] ?? false) {
+    return view('checkout.new');
+}
+
+// Admin panel update
+Route::post('/admin/features/{flag}/toggle', function($flag) {
+    FeatureFlag::where('name', $flag)->toggle('enabled');
+    CacheCascade::refresh('feature-flags'); // Immediate update
+});
 ```
 
 ## Laravel Integration

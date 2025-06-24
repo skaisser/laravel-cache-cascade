@@ -5,6 +5,12 @@ All notable changes to Laravel Cache Cascade will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2024-06-24
+
+### Fixed
+- Remove accidentally committed CLAUDE.md file from package
+- Add CLAUDE.md to .gitignore
+
 ## [1.2.0] - 2024-06-24
 
 ### Added
@@ -80,7 +86,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `clearCache()` - Clear specific cache key
 - `clearAllCache()` - Clear all cascade caches
 
-[Unreleased]: https://github.com/skaisser/laravel-cache-cascade/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/skaisser/laravel-cache-cascade/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/skaisser/laravel-cache-cascade/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/skaisser/laravel-cache-cascade/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/skaisser/laravel-cache-cascade/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/skaisser/laravel-cache-cascade/releases/tag/v1.0.0

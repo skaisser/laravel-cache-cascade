@@ -83,14 +83,23 @@ class CacheCascadeManagerTest extends TestCase
 
     public function test_get_uses_visitor_isolation_when_enabled()
     {
-        // Simulate different visitor IDs
-        session()->put('id', 'visitor1');
-        $this->manager->set('isolated_key', ['visitor' => 1]);
+        // Simulate visitor 1 storing data with isolation
+        $this->app['session']->setId('visitor1');
+        $this->manager->remember('isolated_key', function() {
+            return ['visitor' => 1];
+        }, 3600, true); // Use visitor isolation
         
-        session()->put('id', 'visitor2');
-        $result = $this->manager->get('isolated_key', null, ['visitor_isolation' => true]);
+        // Verify visitor 1 can see their data
+        $result1 = $this->manager->get('isolated_key', null, ['visitor_isolation' => true]);
+        $this->assertEquals(['visitor' => 1], $result1);
         
-        $this->assertNull($result); // Different visitor should not see the data
+        // Simulate visitor 2 by changing session ID
+        $this->app['session']->setId('visitor2');
+        $this->app['session']->migrate(); // Force new session
+        
+        $result2 = $this->manager->get('isolated_key', null, ['visitor_isolation' => true]);
+        
+        $this->assertNull($result2); // Different visitor should not see visitor 1's data
     }
 
     public function test_set_updates_all_layers()

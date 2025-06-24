@@ -49,6 +49,7 @@ abstract class TestCase extends Orchestra
         $app['config']->set('cache-cascade.auto_seed', true);
         $app['config']->set('cache-cascade.model_namespace', 'Skaisser\\CacheCascade\\Tests\\');
         $app['config']->set('cache-cascade.seeder_namespace', 'Skaisser\\CacheCascade\\Tests\\');
+        $app['config']->set('cache-cascade.logging.enabled', true);
     }
 
     protected function setUpDatabase()

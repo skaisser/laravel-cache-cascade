@@ -79,7 +79,7 @@ class CacheCascadeManager
         // Try to get from database and seed if necessary
         if ($this->config['use_database'] ?? true) {
             $data = $this->loadFromDatabase($key);
-            if ($data !== null) {
+            if ($data !== null && !empty($data)) {
                 Cache::put($cacheKey, $data, $ttl);
                 // Also save to file for persistence
                 $this->set($key, $data, true);
@@ -325,11 +325,18 @@ class CacheCascadeManager
             $modelClass .= $modelName;
 
             if (class_exists($modelClass)) {
-                $query = $modelClass::query();
+                $instance = new $modelClass();
                 
-                // Apply ordering if the model has an 'order' column
-                if (in_array('order', $modelClass::make()->getFillable())) {
-                    $query->orderBy('order');
+                // Check if model has the forCascadeCache scope
+                if (method_exists($instance, 'scopeForCascadeCache')) {
+                    $query = $modelClass::forCascadeCache();
+                } else {
+                    $query = $modelClass::query();
+                    
+                    // Apply ordering if the model has an 'order' column
+                    if (in_array('order', $instance->getFillable())) {
+                        $query->orderBy('order');
+                    }
                 }
                 
                 $data = $query->get()->toArray();
@@ -340,7 +347,10 @@ class CacheCascadeManager
 
                 // If no data and auto-seeding is enabled, try to seed
                 if (empty($data) && ($this->config['auto_seed'] ?? true)) {
-                    return $this->autoSeed($key, $modelClass);
+                    $seededData = $this->autoSeed($key, $modelClass);
+                    if (!empty($seededData)) {
+                        return $seededData;
+                    }
                 }
             }
         } catch (\Exception $e) {
@@ -388,6 +398,7 @@ class CacheCascadeManager
 
         if (class_exists($seederClass)) {
             try {
+                $this->log('debug', "Running seeder: {$seederClass}");
                 $seeder = new $seederClass();
                 $seeder->run();
 
@@ -407,9 +418,11 @@ class CacheCascadeManager
                     'trace' => $e->getTraceAsString()
                 ]);
             }
+        } else {
+            $this->log('debug', "Seeder class not found: {$seederClass}");
         }
 
-        return [];
+        return null;
     }
     
     /**

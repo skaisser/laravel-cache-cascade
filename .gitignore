@@ -13,4 +13,4 @@ Thumbs.db
 .phpunit.cache
 coverage/
 build/
-/tests/fixtures/
+/tests/fixtures/CLAUDE.md

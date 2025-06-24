@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2024-06-24
+
+### Added
+- Full support for Laravel 12
+- Laravel version badge in README
+
+### Changed
+- Updated minimum PHP requirement to 8.2 for Laravel 11/12 compatibility
+- Updated PHPUnit to v10+ for better test compatibility
+- Updated Orchestra Testbench to support v10 (Laravel 12)
+- Improved GitHub Actions workflow with better error handling
+
+### Fixed
+- GitHub Actions test workflow now properly handles test environment
+- Test paths now use app->basePath() for CI compatibility
+
+## [1.0.0] - 2024-06-24
+
 ### Added
 - Artisan commands for cache management:
   - `cache:cascade:refresh` - Refresh cache from database
@@ -50,5 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `clearCache()` - Clear specific cache key
 - `clearAllCache()` - Clear all cascade caches
 
-[Unreleased]: https://github.com/skaisser/laravel-cache-cascade/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/skaisser/laravel-cache-cascade/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/skaisser/laravel-cache-cascade/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/skaisser/laravel-cache-cascade/releases/tag/v1.0.0
